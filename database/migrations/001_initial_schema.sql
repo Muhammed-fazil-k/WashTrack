@@ -1,5 +1,5 @@
 -- Migration: Initial Schema for WashTrack
--- Created: 2026-03-26
+-- Created: 2026-03-27
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -14,7 +14,7 @@ CREATE TABLE companies (
   city VARCHAR(100),
   state VARCHAR(100),
   pincode VARCHAR(10),
-  subscription_status VARCHAR(50) DEFAULT 'active', -- active, inactive, suspended
+  subscription_status VARCHAR(50) DEFAULT 'active',
   subscription_start_date DATE,
   subscription_end_date DATE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -27,7 +27,7 @@ CREATE TABLE users (
   mobile_number VARCHAR(20) UNIQUE NOT NULL,
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255),
-  role VARCHAR(50) NOT NULL, -- super_admin, company_admin, worker
+  role VARCHAR(50) NOT NULL,
   company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -47,9 +47,7 @@ CREATE TABLE otp_verifications (
   attempts INT DEFAULT 0,
   is_verified BOOLEAN DEFAULT false,
   expires_at TIMESTAMP NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_mobile_number (mobile_number),
-  INDEX idx_expires_at (expires_at)
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Customers Table
@@ -61,10 +59,9 @@ CREATE TABLE customers (
   email VARCHAR(255),
   address TEXT,
   vehicle_number VARCHAR(50),
-  vehicle_type VARCHAR(50), -- car, bike, suv, truck, etc.
+  vehicle_type VARCHAR(50),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_company_id (company_id),
   UNIQUE (company_id, mobile_number)
 );
 
@@ -78,7 +75,6 @@ CREATE TABLE services (
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_company_id (company_id),
   UNIQUE (company_id, name)
 );
 
@@ -91,7 +87,6 @@ CREATE TABLE expense_types (
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_company_id (company_id),
   UNIQUE (company_id, name)
 );
 
@@ -105,15 +100,12 @@ CREATE TABLE transactions (
   service_amount DECIMAL(10, 2) NOT NULL,
   amount_paid DECIMAL(10, 2) NOT NULL DEFAULT 0,
   pending_amount DECIMAL(10, 2) NOT NULL DEFAULT 0,
-  payment_method VARCHAR(50), -- cash, card, upi, partial
-  payment_status VARCHAR(50) DEFAULT 'pending', -- completed, pending, partial
+  payment_method VARCHAR(50),
+  payment_status VARCHAR(50) DEFAULT 'pending',
   transaction_date DATE NOT NULL DEFAULT CURRENT_DATE,
   notes TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_company_id (company_id),
-  INDEX idx_transaction_date (transaction_date),
-  INDEX idx_customer_id (customer_id),
   CONSTRAINT chk_payment_method CHECK (payment_method IN ('cash', 'card', 'upi', 'partial')),
   CONSTRAINT chk_payment_status CHECK (payment_status IN ('completed', 'pending', 'partial'))
 );
@@ -128,91 +120,77 @@ CREATE TABLE expenses (
   description TEXT,
   expense_date DATE NOT NULL DEFAULT CURRENT_DATE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_company_id (company_id),
-  INDEX idx_expense_date (expense_date)
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Employee Advances Table
+-- Employee Advances Table (future feature)
 CREATE TABLE employee_advances (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
   employee_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   amount DECIMAL(10, 2) NOT NULL,
   request_date DATE NOT NULL DEFAULT CURRENT_DATE,
-  status VARCHAR(50) DEFAULT 'pending', -- pending, approved, rejected
+  status VARCHAR(50) DEFAULT 'pending',
   approved_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
   approval_date TIMESTAMP,
   reason TEXT,
   notes TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_company_id (company_id),
-  INDEX idx_employee_id (employee_id),
-  INDEX idx_status (status),
   CONSTRAINT chk_status CHECK (status IN ('pending', 'approved', 'rejected'))
 );
 
--- Employee Overtime Table
+-- Employee Overtime Table (future feature)
 CREATE TABLE employee_overtime (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
   employee_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   overtime_date DATE NOT NULL,
   hours DECIMAL(5, 2) NOT NULL,
-  status VARCHAR(50) DEFAULT 'pending', -- pending, approved, rejected
+  status VARCHAR(50) DEFAULT 'pending',
   approved_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
   approval_date TIMESTAMP,
   notes TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_company_id (company_id),
-  INDEX idx_employee_id (employee_id),
-  INDEX idx_overtime_date (overtime_date),
-  CONSTRAINT chk_status CHECK (status IN ('pending', 'approved', 'rejected'))
+  CONSTRAINT chk_status_overtime CHECK (status IN ('pending', 'approved', 'rejected'))
 );
 
--- Employee Leaves Table
+-- Employee Leaves Table (future feature)
 CREATE TABLE employee_leaves (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
   employee_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  leave_type VARCHAR(50) NOT NULL, -- sick, casual, vacation
+  leave_type VARCHAR(50) NOT NULL,
   start_date DATE NOT NULL,
   end_date DATE NOT NULL,
   total_days INT NOT NULL,
-  status VARCHAR(50) DEFAULT 'pending', -- pending, approved, rejected
+  status VARCHAR(50) DEFAULT 'pending',
   approved_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
   approval_date TIMESTAMP,
   reason TEXT,
   notes TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_company_id (company_id),
-  INDEX idx_employee_id (employee_id),
-  INDEX idx_status (status),
   CONSTRAINT chk_leave_type CHECK (leave_type IN ('sick', 'casual', 'vacation')),
-  CONSTRAINT chk_status CHECK (status IN ('pending', 'approved', 'rejected')),
+  CONSTRAINT chk_status_leave CHECK (status IN ('pending', 'approved', 'rejected')),
   CONSTRAINT chk_dates CHECK (end_date >= start_date)
 );
 
--- Employee Attendance Table
+-- Employee Attendance Table (future feature)
 CREATE TABLE employee_attendance (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
   employee_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   attendance_date DATE NOT NULL,
-  status VARCHAR(50) NOT NULL, -- present, absent, half_day
+  status VARCHAR(50) NOT NULL,
   check_in_time TIME,
   check_out_time TIME,
   notes TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_company_id (company_id),
-  INDEX idx_employee_id (employee_id),
-  INDEX idx_attendance_date (attendance_date),
   UNIQUE (employee_id, attendance_date),
-  CONSTRAINT chk_status CHECK (status IN ('present', 'absent', 'half_day'))
+  CONSTRAINT chk_attendance_status CHECK (status IN ('present', 'absent', 'half_day'))
 );
 
 -- Inventory Table
@@ -222,7 +200,7 @@ CREATE TABLE inventory (
   item_name VARCHAR(255) NOT NULL,
   description TEXT,
   quantity DECIMAL(10, 2) NOT NULL DEFAULT 0,
-  unit VARCHAR(50), -- liters, kg, pieces, etc.
+  unit VARCHAR(50),
   minimum_quantity DECIMAL(10, 2) DEFAULT 0,
   unit_price DECIMAL(10, 2),
   supplier_name VARCHAR(255),
@@ -230,7 +208,6 @@ CREATE TABLE inventory (
   last_restocked_date DATE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_company_id (company_id),
   UNIQUE (company_id, item_name)
 );
 
@@ -245,14 +222,55 @@ CREATE TABLE purchase_orders (
   total_amount DECIMAL(10, 2) NOT NULL,
   order_date DATE NOT NULL DEFAULT CURRENT_DATE,
   delivery_date DATE,
-  status VARCHAR(50) DEFAULT 'ordered', -- ordered, delivered, cancelled
+  status VARCHAR(50) DEFAULT 'ordered',
   created_by_user_id UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_company_id (company_id),
-  INDEX idx_order_date (order_date),
-  CONSTRAINT chk_status CHECK (status IN ('ordered', 'delivered', 'cancelled'))
+  CONSTRAINT chk_po_status CHECK (status IN ('ordered', 'delivered', 'cancelled'))
 );
+
+-- Create Indexes for Performance
+CREATE INDEX idx_users_company_id ON users(company_id);
+CREATE INDEX idx_users_mobile_number ON users(mobile_number);
+CREATE INDEX idx_users_role ON users(role);
+
+CREATE INDEX idx_otp_mobile_number ON otp_verifications(mobile_number);
+CREATE INDEX idx_otp_expires_at ON otp_verifications(expires_at);
+
+CREATE INDEX idx_customers_company_id ON customers(company_id);
+CREATE INDEX idx_customers_mobile_number ON customers(mobile_number);
+
+CREATE INDEX idx_services_company_id ON services(company_id);
+
+CREATE INDEX idx_expense_types_company_id ON expense_types(company_id);
+
+CREATE INDEX idx_transactions_company_id ON transactions(company_id);
+CREATE INDEX idx_transactions_customer_id ON transactions(customer_id);
+CREATE INDEX idx_transactions_date ON transactions(transaction_date);
+
+CREATE INDEX idx_expenses_company_id ON expenses(company_id);
+CREATE INDEX idx_expenses_date ON expenses(expense_date);
+
+CREATE INDEX idx_employee_advances_company_id ON employee_advances(company_id);
+CREATE INDEX idx_employee_advances_employee_id ON employee_advances(employee_id);
+CREATE INDEX idx_employee_advances_status ON employee_advances(status);
+
+CREATE INDEX idx_employee_overtime_company_id ON employee_overtime(company_id);
+CREATE INDEX idx_employee_overtime_employee_id ON employee_overtime(employee_id);
+CREATE INDEX idx_employee_overtime_date ON employee_overtime(overtime_date);
+
+CREATE INDEX idx_employee_leaves_company_id ON employee_leaves(company_id);
+CREATE INDEX idx_employee_leaves_employee_id ON employee_leaves(employee_id);
+CREATE INDEX idx_employee_leaves_status ON employee_leaves(status);
+
+CREATE INDEX idx_employee_attendance_company_id ON employee_attendance(company_id);
+CREATE INDEX idx_employee_attendance_employee_id ON employee_attendance(employee_id);
+CREATE INDEX idx_employee_attendance_date ON employee_attendance(attendance_date);
+
+CREATE INDEX idx_inventory_company_id ON inventory(company_id);
+
+CREATE INDEX idx_purchase_orders_company_id ON purchase_orders(company_id);
+CREATE INDEX idx_purchase_orders_date ON purchase_orders(order_date);
 
 -- Create updated_at trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()

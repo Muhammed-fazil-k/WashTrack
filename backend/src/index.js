@@ -32,10 +32,15 @@ app.use('/api/v1/auth', require('./routes/auth.routes'));
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(err.status || 500).json({
+
+  const statusCode = err.statusCode || 500;
+  const message = err.message || 'Internal Server Error';
+
+  res.status(statusCode).json({
+    success: false,
     error: {
-      message: err.message || 'Internal Server Error',
-      status: err.status || 500
+      message: message,
+      statusCode: statusCode
     }
   });
 });

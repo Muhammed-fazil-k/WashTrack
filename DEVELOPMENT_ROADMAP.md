@@ -62,10 +62,7 @@ Company Admin needs to configure their carwash operations and manage their team.
 3. Configure expense types
 4. Customer management (add/view/edit customers)
 5. View financial reports (daily/weekly/monthly)
-6. Approve employee advances
-7. Approve overtime requests
-8. Approve leave requests
-9. Inventory management (basic CRUD)
+6. Inventory management (basic CRUD)
 
 ### Deliverables
 - Company Admin authentication and dashboard
@@ -73,7 +70,6 @@ Company Admin needs to configure their carwash operations and manage their team.
 - Expense type configuration
 - Customer database
 - Financial reporting system (income, expenses, profit/loss)
-- Employee request approval workflows
 - Inventory tracking
 
 ### Key Features
@@ -81,7 +77,6 @@ Company Admin needs to configure their carwash operations and manage their team.
 - Expense category customization
 - Customer contact and history tracking
 - Multi-period financial reports
-- Approve/reject employee requests
 - Low stock alerts
 
 **✓ CHECKPOINT**: Company Admin can fully configure and manage their company. Test with sample data.
@@ -91,17 +86,14 @@ Company Admin needs to configure their carwash operations and manage their team.
 ## Phase 3: Worker Features
 
 ### User Story
-Workers need a simple, fast interface to record daily transactions and manage their own requests.
+Workers need a simple, fast interface to record daily transactions.
 
 ### Tasks
 1. Implement Worker login/authentication flow
 2. Record service transactions (select service, auto-populate amount, editable)
 3. Track payment methods (cash/card/UPI) and pending amounts
 4. Record expenses (select type, enter amount and description)
-5. Request advance salary
-6. Record overtime hours
-7. Submit leave requests
-8. View personal dashboard (own transactions and requests)
+5. View personal dashboard (own transactions)
 
 ### Deliverables
 - Worker authentication and simplified dashboard
@@ -109,14 +101,12 @@ Workers need a simple, fast interface to record daily transactions and manage th
 - Payment method tracking
 - Pending amount management
 - Expense recording
-- Employee self-service (advances, overtime, leaves)
 - Personal performance view
 
 ### Key Features
 - Simple, fast data entry UI
 - Service dropdown with auto-populated prices (editable)
 - Payment split tracking (partial payments)
-- Request status tracking (pending/approved/rejected)
 - Transaction history
 
 **✓ CHECKPOINT**: Workers can perform all daily operations. Test complete workflow: Super Admin creates company → Company Admin configures → Worker records transactions.
@@ -190,14 +180,14 @@ Enhance the system with advanced features and polish.
 - [ ] Company Admin can log in
 - [ ] Services can be configured with pricing
 - [ ] Financial reports show accurate data
-- [ ] Employee approvals work correctly
+- [ ] Inventory management works correctly
 - [ ] Only sees own company's data
 
 ### Phase 3 Validation
 - [ ] Worker can log in
 - [ ] Transactions can be recorded quickly
 - [ ] Payment tracking works (including pending amounts)
-- [ ] Requests can be submitted and tracked
+- [ ] Expenses can be recorded
 - [ ] Only sees own company's data
 
 ### Phase 4 Validation

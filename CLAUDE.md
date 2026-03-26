@@ -31,11 +31,8 @@ WashTrack is a comprehensive ledger management system designed specifically for 
 
 ### 4. Employee Management
 - Employee records and roles
-- Attendance tracking
-- Advance salary requests and tracking
-- Overtime hours tracking
-- Leave management (requests and approvals)
-- Salary calculations including advances and overtime
+- Attendance tracking (future feature)
+- Note: Advance salary, overtime, and leave management features are deferred for later phases
 
 ### 5. Inventory Management
 - Cleaning supplies and materials tracking
@@ -127,10 +124,10 @@ WashTrack/
 - **purchase_orders**: Supplier purchase tracking
 
 #### Employee Management
-- **employee_attendance**: Daily attendance records
-- **employee_advances**: Advance salary requests and approvals
-- **employee_overtime**: Overtime hours tracking
-- **employee_leaves**: Leave requests and approvals
+- **employee_attendance**: Daily attendance records (future feature)
+- **employee_advances**: Advance salary requests (future feature)
+- **employee_overtime**: Overtime hours tracking (future feature)
+- **employee_leaves**: Leave requests and approvals (future feature)
 
 ## Development Guidelines
 
@@ -191,7 +188,6 @@ WashTrack/
   - Manage workers for their company
   - View all transactions and financial reports
   - Manage customers
-  - Approve employee advances, overtime, and leaves
   - View company analytics and reports
   - Manage inventory
 
@@ -202,10 +198,7 @@ WashTrack/
   - Record customer payments (cash, card, UPI)
   - Track pending amounts for customers
   - Add expense entries
-  - Request advance salary
-  - Record overtime hours
-  - Submit leave requests
-  - View their own performance data
+  - View their own transaction history
 
 ## Authentication System
 
@@ -264,7 +257,7 @@ WashTrack/
 - **Authentication**: Mobile + OTP only, no passwords
 - **Transaction Entry**: Service selection auto-populates amount, but worker can edit if needed
 - **Payment Tracking**: Support partial payments with pending amount tracking
-- **Employee Salary**: Track advances, overtime, and leaves for accurate salary calculation
+- **Employee Features**: Attendance, advances, overtime, and leave management are deferred for future implementation
 - Always prioritize data security and validation
 - Keep the UI simple and intuitive for non-technical users
 - Focus on fast transaction processing as this is time-sensitive
