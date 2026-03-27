@@ -28,6 +28,8 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api/v1/auth', require('./routes/auth.routes'));
+app.use('/api/v1/companies', require('./routes/company.routes'));
+app.use('/api/v1/users', require('./routes/user.routes'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
